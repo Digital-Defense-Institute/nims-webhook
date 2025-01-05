@@ -1,10 +1,20 @@
 # NIMS (Notion Incident Management System) Webhook
 
-This is an all-in-one binary that will catch detections sent via webhooks to `/hooks/alert:9000` and create alerts in your NIMS alerts database.
+This is an all-in-one binary that will catch detections sent via webhook to `/hooks/alert:9000` and create alerts in your NIMS alerts database.
 
 ## To build 
+Install Go
+```bash
+sudo apt update
+sudo apt -y install golang-go
+```
+Replace Notion auth token and database IDs with yours
 ```bash
 cd nims-webhook
+vi nims-webhook.go
+```
+Build the binary
+```bash
 go mod init nims-webhook
 go mod tidy
 go build nims-webhook.go
@@ -116,6 +126,5 @@ curl -X POST http://0.0.0.0:9000/hooks/alert \
   "source": "5678abcd-910e-11fg-hijk-123456lmnopq.f12g34h5-i6jk-78lm-90no-pq12rstuv345.789abcd1-2345-6789-0efg-hijklm123nop.10000000.3",
   "source_rule": "service.WIN-mshta_Network_Connection_to_External_IP",
   "ts": 1736019224000
-}
-'
+}'
 ```
