@@ -29,8 +29,8 @@ func init() {
 	}
 
     // get env vars
-    assetsDatabaseID = os.Getenv("NOTION_ASSETS_DATABASE_ID")
-    alertsDatabaseID = os.Getenv("NOTION_ALERTS_DATABASE_ID")
+    assetsDatabaseID = os.Getenv("NIMS_ASSETS_DATABASE_ID")
+    alertsDatabaseID = os.Getenv("NIMS_ALERTS_DATABASE_ID")
     authToken = os.Getenv("NOTION_AUTH_TOKEN")
 
     // initialize notion client
