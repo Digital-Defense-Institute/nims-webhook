@@ -36,14 +36,27 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+  
     steps:
     - uses: actions/checkout@v4
-
-    - name: Upload release asset
-      uses: actions/upload-release-asset@v1
+  
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
-        upload_url: ${{ github.event.release.upload_url || steps.create_release.outputs.upload_url }}
-        asset_path: ./nims-webhook-*
+        tag_name: ${{ github.ref_name }} # Use the tag triggering the workflow
+        release_name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+  
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./nims-webhook-${{ matrix.go-version }}
         asset_name: nims-webhook-${{ matrix.go-version }}
         asset_content_type: application/octet-stream
-
