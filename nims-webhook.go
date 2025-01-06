@@ -11,7 +11,7 @@ import (
     "os"
 
     "github.com/jomei/notionapi"
-	"github.com/joho/godotenv"
+    "github.com/joho/godotenv"
 )
 
 var (
