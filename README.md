@@ -25,6 +25,20 @@ go build nims-webhook.go
 ./nims-webhook
 ```
 
+## Fields
+The following fields are currently utilized:
+* `routing.hostname` - the hostname of the affected host
+* `routing.int_ip` - the internal IP address of the affected host
+* `routing.event_time` - the timestamp of the detection event
+* `detect` - the full event details captured during detection
+* `detect_mtd` - metadata associated with the detection
+* `link` - the URL linking directly to the alert within LimaCharlie
+* `cat` - the name or category of the alert
+
+To customize these fields or replace them with others from your JSON objects, you can edit the `nims-webhook.go` file, specifically in the `webhookHandler` function.
+
+Similarly, if you wish to modify fields in your Notion template and integrate those changes into the script, updates can be applied in both the `webhookHandler` and `addAlert` functions.
+
 ## Example request 
 ```bash
 curl -X POST http://0.0.0.0:9000/hooks/alert \
