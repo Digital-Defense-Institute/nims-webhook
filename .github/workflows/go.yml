@@ -15,14 +15,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: [ '1.20', '1.22.10', '1.23.4' ]
+        go-version: [ '1.21.1' ]
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.20'
+        go-version: '1.21'
 
     - name: Init
       run: go mod init nims-webhook
@@ -31,10 +31,19 @@ jobs:
       run: go mod tidy
 
     - name: Build
-      run: go build -v nims-webhook.go
-      
-    - name: Upload Go test results
-      uses: actions/upload-artifact@v4
+      run: go build -o nims-webhook-${{ matrix.go-version }} nims-webhook.go
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
       with:
-        name: Go-results-${{ matrix.go-version }}
-        path: nims-webhook
+        upload_url: ${{ github.event.release.upload_url || steps.create_release.outputs.upload_url }}
+        asset_path: ./nims-webhook-*
+        asset_name: nims-webhook-${{ matrix.go-version }}
+        asset_content_type: application/octet-stream
+
