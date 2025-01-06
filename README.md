@@ -8,10 +8,10 @@ Install Go
 sudo apt update
 sudo apt -y install golang-go
 ```
-Replace Notion auth token and database IDs with yours
+Replace Notion auth token and database IDs with yours in `.env`
 ```bash
 cd nims-webhook
-vi nims-webhook.go
+vi .env
 ```
 Build the binary
 ```bash

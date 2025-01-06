@@ -8,18 +8,33 @@ import (
     "net/http"
     "strconv"
     "time"
+    "os"
 
     "github.com/jomei/notionapi"
+	"github.com/joho/godotenv"
 )
 
 var (
     client           *notionapi.Client
-    assetsDatabaseID string = "YOUR_NOTION_ASSET_DATABASE_ID"
-    alertsDatabaseID string = "YOUR_NOTION_ALERTS_DATABASE_ID"
+    assetsDatabaseID string 
+    alertsDatabaseID string 
+    authToken string
 )
 
 func init() {
-    client = notionapi.NewClient(notionapi.Token("YOUR_NOTION_TOKEN"))
+    // load .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+    // get env vars
+    assetsDatabaseID = os.Getenv("NOTION_ASSETS_DATABASE_ID")
+    alertsDatabaseID = os.Getenv("NOTION_ALERTS_DATABASE_ID")
+    authToken = os.Getenv("NOTION_AUTH_TOKEN")
+
+    // initialize notion client
+    client = notionapi.NewClient(notionapi.Token(authToken))
 }
 
 func checkRelatedAssetExists(name string) (notionapi.ObjectID, error) {
