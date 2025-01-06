@@ -53,12 +53,13 @@ jobs:
   
     - name: Install GitHub CLI
       run: sudo apt-get install -y gh
-  
-    - name: Delete Existing Release if Exists
+      
+    - name: Delete Existing Release and Tag if Exists
       run: |
         if gh release view ${{ github.ref_name }} 2>/dev/null; then
           gh release delete ${{ github.ref_name }} --yes
-          git push origin :refs/tags/${{ github.ref_name }}
+          git tag -d ${{ github.ref_name }}
+          git push https://shortstack:${{ secrets.TOKEN }}@github.com/shortstack/nims-webhook.git :refs/tags/${{ github.ref_name }}
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
