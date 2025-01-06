@@ -1,6 +1,6 @@
 # NIMS (Notion Incident Management System) Webhook
 
-This is an all-in-one binary that will catch detections sent via webhook to `/hooks/alert:9000` and create alerts in your [NIMS alerts database](https://ecapuano.notion.site/Alpha-Notion-Incident-Management-System-16ad5339b31680679a91e41ac722dfcc).
+This is an all-in-one binary that will catch detections sent via webhook to `/hooks/alert:9000` and create alerts in your [NIMS alerts database](https://nims-template.notion.site/).
 
 ## To build 
 Install Go
