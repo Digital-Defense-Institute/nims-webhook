@@ -8,7 +8,7 @@ You need both the `Asset Database` ID and the `Alert Database` ID to use this to
 2. Right click on the database and click `Copy link`
     ![link](./screenshots/link.png)
 3. Locate the database ID in the URL
-    * The databse ID is the long string of letters and numbers in the URL after the last `/` and before the `?` or `#` if present
+    * The database ID is the long string of letters and numbers in the URL after the last `/` and before the `?` or `#` if present
     * Example: 
         * Link: `https://www.notion.so/184cdc5a1ef3710badc2d2b1271aeb81?v=174cdc3a1ef181719981000cab12bf54&pvs=4`
         * ID: `184cdc5a1ef3710badc2d2b1271aeb81`
