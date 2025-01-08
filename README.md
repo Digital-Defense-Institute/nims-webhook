@@ -19,7 +19,9 @@ go build nims-webhook.go
 ## To run
 Either build the binary (steps above) if you wish to make modifications, or download it from [the releases page](https://github.com/shortstack/nims-webhook/releases) and run it.  
 
-First, replace Notion auth token and database IDs with yours in `.env`
+First, replace Notion auth token and database IDs with yours in `.env`.
+
+You can generate and configure your auth token by following the steps in [NOTION.md](./NOTION.md).
 ```bash
 NIMS_ASSETS_DATABASE_ID=
 NIMS_ALERTS_DATABASE_ID=
