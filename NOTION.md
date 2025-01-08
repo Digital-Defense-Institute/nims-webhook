@@ -2,7 +2,7 @@
 
 This will walk you through creating a Notion integration, getting the auth token, and adding the integration to the proper NIMS databases.
 
-1. Go to `Manage Connections` in Notion
+1. Go to `Manage connections` in Notion
     ![connection](./screenshots/connection.png)
 
 2. Click `Develop or manage integrations`
@@ -30,7 +30,7 @@ This will walk you through creating a Notion integration, getting the auth token
     * Click on your newly created integration
     ![connection](./screenshots/alerts.png)
 
-8. Click `Confirm`
-     ![connection](./screenshots/confirm.png)
+8. Click `Confirm`  
+    ![connection](./screenshots/confirm.png)
 
 9. Repeat steps 7 and 8 for the `Asset Database`
