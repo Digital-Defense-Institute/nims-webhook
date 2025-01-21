@@ -22,10 +22,14 @@ Either build the binary (steps above) if you wish to make modifications, or down
 First, replace Notion auth token and database IDs with yours in `.env`.
 
 You can generate and configure your auth token by following the steps in [NOTION.md](./NOTION.md).
+
+This binary will purge alerts not associated with an incident and older than `NOTION_ALERT_AGE` (in days) automatically if `AUTO_PURGE_ALERTS` is set to `true`.
 ```bash
 NIMS_ASSETS_DATABASE_ID=
 NIMS_ALERTS_DATABASE_ID=
 NOTION_AUTH_TOKEN=
+NOTION_ALERT_AGE=30
+AUTO_PURGE_ALERTS=false
 ```
 Run the binary
 ```bash

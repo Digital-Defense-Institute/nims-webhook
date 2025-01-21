@@ -19,6 +19,8 @@ var (
 	assetsDatabaseID string
 	alertsDatabaseID string
 	authToken        string
+	alertAge         int
+	autoPurge        bool
 )
 
 func init() {
@@ -32,9 +34,77 @@ func init() {
 	assetsDatabaseID = os.Getenv("NIMS_ASSETS_DATABASE_ID")
 	alertsDatabaseID = os.Getenv("NIMS_ALERTS_DATABASE_ID")
 	authToken = os.Getenv("NOTION_AUTH_TOKEN")
+	autoPurgeStr := os.Getenv("AUTO_PURGE_ALERTS")
+	autoPurge, err = strconv.ParseBool(autoPurgeStr)
+	if err != nil {
+		log.Fatalf("Invalid boolean value for AUTO_PURGE_ALERTS: %v\n", err)
+		autoPurge = false
+	}
+	alertAge, err = strconv.Atoi(os.Getenv("NOTION_ALERT_AGE"))
+	if err != nil {
+		log.Fatalf("invalid value for NOTION_ALERT_AGE: %v\n", err)
+	}
 
 	// initialize notion client
 	client = notionapi.NewClient(notionapi.Token(authToken))
+}
+
+func deleteRecord(recordID string) error {
+	pageID := notionapi.PageID(recordID)
+
+	// set archived to true
+	_, err := client.Page.Update(context.Background(), pageID, &notionapi.PageUpdateRequest{
+		Archived: true,
+	})
+	if err != nil {
+		return fmt.Errorf("unable to delete record: %v", err)
+	}
+
+	return nil
+}
+
+func deleteOldAlerts(databaseID string, days int) error {
+
+	// define the filter for "Created Time" older than $days and "Related Incident" is empty
+	daysAgo := time.Now().AddDate(0, 0, -days)
+	timeObj, _ := time.Parse(time.RFC3339, daysAgo.Format(time.RFC3339))
+	dateObj := notionapi.Date(timeObj)
+
+	filter := &notionapi.DatabaseQueryRequest{
+		Filter: notionapi.AndCompoundFilter{
+			notionapi.TimestampFilter{
+				Timestamp: notionapi.TimestampCreated,
+				CreatedTime: &notionapi.DateFilterCondition{
+					Before: &dateObj,
+				},
+			},
+			notionapi.PropertyFilter{
+				Property: "Related Incident",
+				Relation: &notionapi.RelationFilterCondition{
+					IsEmpty: true,
+				},
+			},
+		},
+	}
+
+	// Query the database
+	response, err := client.Database.Query(context.Background(), notionapi.DatabaseID(databaseID), filter)
+	if err != nil {
+		return fmt.Errorf("failed to query the database: %v", err)
+	}
+
+	// Iterate through the results and delete matching alerts
+	for _, result := range response.Results {
+		fmt.Printf("%s - deleting alert with ID %s - %s\n", time.Now().UTC().Format(time.RFC3339), result.ID, result.Properties["Name"].(*notionapi.TitleProperty).Title[0].Text.Content)
+
+		if err := deleteRecord(string(result.ID)); err != nil {
+			fmt.Printf("%s - failed to delete alert with ID %s: %v\n", time.Now().UTC().Format(time.RFC3339), result.ID, err)
+		} else {
+			fmt.Printf("%s - successfully deleted alert with ID %s\n", time.Now().UTC().Format(time.RFC3339), result.ID)
+		}
+	}
+
+	return nil
 }
 
 func checkRelatedAssetExists(name string) (notionapi.ObjectID, error) {
@@ -281,8 +351,19 @@ func webhookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+
+	if autoPurge {
+		// start a goroutine for the 24-hour cron job to purge unassociated alerts
+		go func() {
+			for {
+				deleteOldAlerts(alertsDatabaseID, alertAge)
+				time.Sleep(24 * time.Hour)
+			}
+		}()
+	}
+
 	// listen on port 9000 for webhook POST requests
 	http.HandleFunc("/hooks/alert", webhookHandler)
-	log.Println("Listening for webhooks on port 9000")
+	fmt.Printf("%s - listening for webhooks on port 9000\n", time.Now().UTC().Format(time.RFC3339))
 	log.Fatal(http.ListenAndServe(":9000", nil))
 }

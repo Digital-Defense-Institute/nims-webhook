@@ -13,7 +13,7 @@ You need both the `Asset Database` ID and the `Alert Database` ID to use this to
         * Link: `https://www.notion.so/184cdc5a1ef3710badc2d2b1271aeb81?v=174cdc3a1ef181719981000cab12bf54&pvs=4`
         * ID: `184cdc5a1ef3710badc2d2b1271aeb81`
 4. Copy the ID 
-5. Repeat the above for the other database
+5. Repeat the above for the `Alert Database`
 
  ## Auth Token and Access
 
@@ -50,4 +50,4 @@ This will walk you through creating a Notion integration, getting the auth token
 8. Click `Confirm`  
     ![connection](./screenshots/confirm.png)
 
-9. Repeat steps 7 and 8 for the `Asset Database`
+9. Repeat steps 7 and 8 for the `Incident Database` and `Asset Database`
