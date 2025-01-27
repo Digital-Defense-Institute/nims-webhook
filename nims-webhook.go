@@ -65,38 +65,52 @@ func deleteRecord(recordID string) error {
 
 func deleteOldAlerts(databaseID string, days int) error {
 
-	// define the filter for "Created Time" older than $days and "Related Incident" is empty
+	// define the filter for "CreatedTime" older than $days and "Related Incident" is empty
 	daysAgo := time.Now().AddDate(0, 0, -days)
 	timeObj, _ := time.Parse(time.RFC3339, daysAgo.Format(time.RFC3339))
 	dateObj := notionapi.Date(timeObj)
 
-	filter := &notionapi.DatabaseQueryRequest{
-		Filter: notionapi.AndCompoundFilter{
-			notionapi.TimestampFilter{
-				Timestamp: notionapi.TimestampCreated,
-				CreatedTime: &notionapi.DateFilterCondition{
-					Before: &dateObj,
+	var allResults []notionapi.Page
+
+	startCursor := ""
+	for {
+		filter := &notionapi.DatabaseQueryRequest{
+			PageSize:    100,
+			StartCursor: notionapi.Cursor(startCursor),
+			Filter: notionapi.AndCompoundFilter{
+				notionapi.TimestampFilter{
+					Timestamp: notionapi.TimestampCreated,
+					CreatedTime: &notionapi.DateFilterCondition{
+						Before: &dateObj,
+					},
+				},
+				notionapi.PropertyFilter{
+					Property: "Related Incident",
+					Relation: &notionapi.RelationFilterCondition{
+						IsEmpty: true,
+					},
 				},
 			},
-			notionapi.PropertyFilter{
-				Property: "Related Incident",
-				Relation: &notionapi.RelationFilterCondition{
-					IsEmpty: true,
-				},
-			},
-		},
+		}
+
+		// query the database
+		response, err := client.Database.Query(context.Background(), notionapi.DatabaseID(databaseID), filter)
+		if err != nil {
+			return fmt.Errorf("failed to query the database: %v", err)
+		}
+
+		allResults = append(allResults, response.Results...)
+		if response.HasMore {
+			startCursor = string(response.NextCursor)
+		} else {
+			break
+		}
 	}
 
-	// Query the database
-	response, err := client.Database.Query(context.Background(), notionapi.DatabaseID(databaseID), filter)
-	if err != nil {
-		return fmt.Errorf("failed to query the database: %v", err)
-	}
-
-	// Iterate through the results and delete matching alerts
-	for _, result := range response.Results {
+	// iterate through the results and delete matching alerts
+	for _, result := range allResults {
 		fmt.Printf("%s - deleting alert with ID %s - %s\n", time.Now().UTC().Format(time.RFC3339), result.ID, result.Properties["Name"].(*notionapi.TitleProperty).Title[0].Text.Content)
-
+		
 		if err := deleteRecord(string(result.ID)); err != nil {
 			fmt.Printf("%s - failed to delete alert with ID %s: %v\n", time.Now().UTC().Format(time.RFC3339), result.ID, err)
 		} else {
